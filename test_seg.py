@@ -40,7 +40,7 @@ sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
 sam.to(device=device)
 # predictor = SamPredictor(sam)
 
-image = cv2.imread('test_fp.png')
+image = cv2.imread('fp3.png')
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 # mask_generator = SamAutomaticMaskGenerator(sam)
