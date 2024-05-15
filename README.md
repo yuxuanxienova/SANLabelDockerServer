@@ -1,3 +1,14 @@
+# Build and run the segment anything with number tag added in docker server
+<p float="left">
+  <img src="fp2.png?raw=true" width="50%" />
+  <img src="fp3.png?raw=true" width="50%" /> 
+</p>
+```
+docker build .
+
+```
+
+# The Follosing is the instructions for original segment anything
 # Segment Anything
 
 **[Meta AI Research, FAIR](https://ai.facebook.com/research/)**
