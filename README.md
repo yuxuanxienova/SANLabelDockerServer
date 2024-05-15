@@ -1,8 +1,8 @@
 # Build and run the segment anything with number tag added in docker server
-<p float="left">
-  <img src="fp2.png?raw=true" width="30%" />
-  <img src="processed_image.png?raw=true" width="50%" /> 
-</p>
+
+<img src="fp2.png?raw=true" width="100%" />
+<img src="processed_image.png?raw=true" width="80%" /> 
+
 
 Tutorial
 1. Download The Model
