@@ -4,7 +4,7 @@ import requests
 server_url = "http://localhost:5000"
 
 # Path to the image file you want to send
-image_file = "test_fp.png"
+image_file = "fp2.png"
 
 # Open the image file in binary mode and read its content
 with open(image_file, 'rb') as f:

@@ -1,11 +1,21 @@
 # Build and run the segment anything with number tag added in docker server
 <p float="left">
   <img src="fp2.png?raw=true" width="50%" />
-  <img src="fp3.png?raw=true" width="50%" /> 
+  <img src="processed_image.png?raw=true" width="50%" /> 
 </p>
-```
-docker build .
 
+Tutorial
+1. Download The Model
+[ViT-H SAM model.](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
+2. Under SAN_CustomDockerServer/
+2.1 make new folder called models
+2.2 move sam_vit_h_4b8939.pth into SAN_CustomDockerServer/models/
+
+3. Under SAN_CustomDockerServer/ , run the following
+```
+docker build . -t yuxuan-san-server
+docker run -p 5000:5000 yuxuan-san-server
+SAN_CustomDockerServer/client_test.py
 ```
 
 # The Follosing is the instructions for original segment anything
