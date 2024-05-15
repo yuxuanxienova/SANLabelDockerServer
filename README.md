@@ -1,7 +1,7 @@
 # Build and run the segment anything with number tag added in docker server
 
 <img src="fp2.png?raw=true" width="100%" />
-<img src="processed_image.png?raw=true" width="100%" /> 
+<img src="processed_image.png?raw=true" width="120%" /> 
 
 
 Tutorial
