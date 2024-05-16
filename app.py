@@ -1,9 +1,10 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file,jsonify, Response
 from PIL import Image
 from io import BytesIO
 from image_processor import ImageProcessor
 import logging
-
+import json
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 # Initialize the ImageProcessor object
 processor = ImageProcessor()
 
@@ -44,7 +45,7 @@ def predict():
     pil_image = convert_to_standard_format(image_bytes) 
     
     #3.Process the image
-    pil_image = processor.process_SetOfMask(pil_image)
+    pil_image, maskNumberToPixelCorDict = processor.process_SetOfMask(pil_image)
     
 
     # Save and Response
@@ -53,9 +54,22 @@ def predict():
     pil_image.save(output_image_bytes, format='JPEG')
     output_image_bytes.seek(0)
 
-    # Return the processed image as JPEG
-    logging.info("Image processed successfully")
-    return send_file(output_image_bytes, mimetype='image/jpeg')
+
+
+
+
+    # Prepare the response
+    response_data = MultipartEncoder(
+        fields={
+            'image': ('processed_image.jpg', output_image_bytes, 'image/jpeg'),
+            'mask_data': ('mask_data.json', json.dumps(maskNumberToPixelCorDict), 'application/json')
+        }
+    )
+
+    # Return the processed image and the dictionary as a multipart response
+    response = Response(response_data.to_string(), content_type=response_data.content_type)
+    logging.info("Image and mask data processed successfully")
+    return response
      
 
 if __name__ == "__main__":

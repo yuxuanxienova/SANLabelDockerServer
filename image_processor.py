@@ -3,7 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-
+from typing import Dict,List,Tuple
 class ImageProcessor:
     def __init__(self) -> None:
         sam_checkpoint = "./models/sam_vit_h_4b8939.pth"
@@ -29,7 +29,7 @@ class ImageProcessor:
         # Plot the image with masks
         fig, ax = plt.subplots(figsize=(20, 20))
         ax.imshow(pil_image)
-        self.AddNumberTagsToMasks(ax, masks)
+        maskNumberToPixelCorDict = self.AddNumberTagsToMasks(ax, masks)
         
         # Convert the plot to a PIL Image object
         fig.canvas.draw()
@@ -38,8 +38,12 @@ class ImageProcessor:
         plt.close(fig)  # Close the plot to release resources
         
         # Return the PIL Image object
-        return pil_image
-    def AddNumberTagsToMasks(self,ax,anns):
+        return pil_image, maskNumberToPixelCorDict
+    def AddNumberTagsToMasks(self,ax,anns)->Dict[int,Tuple[int,int]]:
+        '''
+        AddNumber Tags to masks
+        Return Dictionary, the key is tag number, value is cantroid in image pixel coordinate
+        '''
         if len(anns) == 0:
             return
         sorted_anns = sorted(anns, key=(lambda x: x['area']), reverse=True)
@@ -47,6 +51,7 @@ class ImageProcessor:
         polygons = []
         color = []
         j = 0
+        maskNumberToPixelCorDict:Dict[int,Tuple[int,int]]={}
         for ann in sorted_anns:
             m = ann['segmentation']
             img = np.ones((m.shape[0], m.shape[1], 3))
@@ -61,12 +66,14 @@ class ImageProcessor:
             # Calculate centroid of the mask
             moments = cv2.moments(m_uint8)
             if moments["m00"] != 0:
-                centroid_x = int(moments["m10"] / moments["m00"])
-                centroid_y = int(moments["m01"] / moments["m00"])
+                centroid_u = int(moments["m10"] / moments["m00"])
+                centroid_v = int(moments["m01"] / moments["m00"])
                 
                 # Add text annotation with mask number
-                ax.text(centroid_x, centroid_y, str(j), color='white', fontsize=12, ha='center', va='center', bbox=dict(facecolor='black', alpha=0.5))
+                ax.text(centroid_u, centroid_v, str(j), color='white', fontsize=12, ha='center', va='center', bbox=dict(facecolor='black', alpha=0.5))
+                maskNumberToPixelCorDict[j] = (centroid_u,centroid_v)
             j += 1
+        return maskNumberToPixelCorDict
     def pilTOcv2RGB(self,pil_image):
         # Convert PIL Image to NumPy array
         image_np = np.array(pil_image)
@@ -80,7 +87,7 @@ if __name__=="__main__":
     image = cv2.imread('test_fp.png')
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     processor = ImageProcessor()
-    pil_image = processor.process_SetOfMask(image)
+    pil_image, maskNumberToPixelCorDict = processor.process_SetOfMask(image)
     
     # Visualize the PIL Image
     plt.imshow(pil_image)
