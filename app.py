@@ -17,8 +17,8 @@ def convert_to_standard_format(image_bytes):
     pil_image = pil_image.convert('RGB')  # Convert to RGB format
     return pil_image
 
-@app.route('/', methods=['POST'])
-def predict():
+@app.route('/file', methods=['POST'])
+def predictFromFile():
     # Log the incoming request
     logging.info(f"Incoming request from {request.remote_addr} - {request.method} {request.url}")
     #1.PrePorcess
@@ -47,16 +47,11 @@ def predict():
     #3.Process the image
     pil_image, maskNumberToPixelCorDict = processor.process_SetOfMask(pil_image)
     
-
     # Save and Response
     output_image_bytes = BytesIO()
     # Save the processed image as JPEG
     pil_image.save(output_image_bytes, format='JPEG')
     output_image_bytes.seek(0)
-
-
-
-
 
     # Prepare the response
     response_data = MultipartEncoder(
@@ -70,7 +65,44 @@ def predict():
     response = Response(response_data.to_string(), content_type=response_data.content_type)
     logging.info("Image and mask data processed successfully")
     return response
-     
+
+
+@app.route('/image', methods=['POST'])
+def predictFromImage():
+    # Log the incoming request
+    logging.info(f"Incoming request from {request.remote_addr} - {request.method} {request.url}")
+    #1.PrePorcess
+    #1.1 check if image file is included in the request
+    if 'image_buffer' not in request.files:
+        logging.error("No image part in the request")
+        return "No image part",400
+    image_buffer = request.files['image_buffer']
+    image_bytes = image_buffer.getvalue()
+
+    # Convert the image to a standard format
+    pil_image = convert_to_standard_format(image_bytes) 
+    
+    #3.Process the image
+    pil_image, maskNumberToPixelCorDict = processor.process_SetOfMask(pil_image)
+    
+    # Save and Response
+    output_image_bytes = BytesIO()
+    # Save the processed image as JPEG
+    pil_image.save(output_image_bytes, format='JPEG')
+    output_image_bytes.seek(0)
+
+    # Prepare the response
+    response_data = MultipartEncoder(
+        fields={
+            'image': ('processed_image.jpg', output_image_bytes, 'image/jpeg'),
+            'mask_data': ('mask_data.json', json.dumps(maskNumberToPixelCorDict), 'application/json')
+        }
+    )
+
+    # Return the processed image and the dictionary as a multipart response
+    response = Response(response_data.to_string(), content_type=response_data.content_type)
+    logging.info("Image and mask data processed successfully")
+    return response    
 
 if __name__ == "__main__":
     app.run(debug=True)

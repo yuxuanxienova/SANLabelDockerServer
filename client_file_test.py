@@ -2,7 +2,7 @@ import requests
 from requests_toolbelt.multipart import decoder
 import json
 # URL of the Flask server
-server_url = "http://localhost:5000"
+server_url = "http://localhost:5000/file"
 
 # Path to the image file you want to send
 image_file = "fp2.png"
